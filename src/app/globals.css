@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0F172A;
+  /* Match Midnight Blue */
+  --foreground: #F8FAFC;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* VSCode-style heading underlines */
+.prose h1 {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+  padding-bottom: 0.3em;
+  margin-bottom: 1em;
+}
+
+.prose h2 {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  padding-bottom: 0.3em;
+  margin-bottom: 0.8em;
+}
+
+.prose-invert h1 {
+  border-bottom-color: rgba(148, 163, 184, 0.3);
+}
+
+.prose-invert h2 {
+  border-bottom-color: rgba(148, 163, 184, 0.2);
+}
+
+/* Ensure horizontal rules are visible in Markdown */
+.prose hr {
+  border: 0;
+  border-top: 2px solid rgba(148, 163, 184, 0.4);
+  margin-top: 3em;
+  margin-bottom: 3em;
+  height: 0;
+}
+
+.prose-invert hr {
+  border-top-color: rgba(148, 163, 184, 0.4);
+}

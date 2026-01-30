@@ -1,0 +1,10 @@
+[2026-01-29T20:32:51.936Z] DELETE ATTEMPT
+Session: {"name":"admin","role":"ADMIN"}
+Target: {"id":"cmkzwsnns0000iodg51fkqwsn","username":"admin","password":"$2b$10$ciaxMHb8Qd2gxwxjZ3rcSOb92HReQbru/ElQqn.IYhou0lIbGenH.","role":"ADMIN","createdAt":"2026-01-29T20:30:57.736Z"}
+Match: true
+
+[2026-01-29T20:33:12.705Z] DELETE ATTEMPT
+Session: {"name":"admin","role":"ADMIN"}
+Target: {"id":"cmkzwsnns0000iodg51fkqwsn","username":"admin","password":"$2b$10$MDqhz./6lZ0owfYSERXPu.yNu2rn/zTl2TyGg4DUD2spC5SXkY/PC","role":"ADMIN","createdAt":"2026-01-29T20:30:57.736Z"}
+Match: true
+
