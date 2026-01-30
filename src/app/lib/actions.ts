@@ -90,7 +90,7 @@ export async function createDocument(formData: FormData) {
             else if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext)) fileType = 'image'
             else if (['.mp4', '.webm', '.mov'].includes(ext)) fileType = 'video'
             else if (['.mp3', '.wav', '.ogg'].includes(ext)) fileType = 'audio'
-            else if (['.txt', '.log', '.json', '.xml'].includes(ext)) fileType = 'text'
+            else if (['.txt', '.log', '.json', '.xml', '.html', '.htm'].includes(ext)) fileType = 'text'
             else fileType = 'file'
         }
     } else if (externalUrl) {

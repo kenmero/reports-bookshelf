@@ -15,6 +15,7 @@ const VercelStorage: StorageProvider = {
         // access: 'public' ensures it's readable.
         const blob = await put(filename, file, {
             access: 'public',
+            contentType: file.type
         });
         return blob.url;
     },
