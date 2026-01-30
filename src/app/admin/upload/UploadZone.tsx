@@ -10,13 +10,14 @@ import { useRouter } from 'next/navigation'
 export default function UploadZone() {
     const router = useRouter()
     // ...
-    const [mode, setMode] = useState<'file' | 'url'>('file')
+    const [mode, setMode] = useState<'file' | 'url' | 'text'>('file')
     const [file, setFile] = useState<File | null>(null)
     const [title, setTitle] = useState('')
     const [category, setCategory] = useState('')
     const [externalUrl, setExternalUrl] = useState('')
     const [requiredRole, setRequiredRole] = useState('VIEWER')
     const [content, setContent] = useState('') // Description/Markdown
+    const [textType, setTextType] = useState('markdown') // markdown | html | text
 
     const [status, setStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: '' })
     const [isUploading, setIsUploading] = useState(false)
@@ -42,7 +43,7 @@ export default function UploadZone() {
         formData.append('title', title)
         formData.append('category', category)
         formData.append('requiredRole', requiredRole)
-        formData.append('content', content) // Optional description
+        formData.append('content', content)
 
         if (mode === 'file') {
             if (!file) {
@@ -52,7 +53,7 @@ export default function UploadZone() {
             }
             formData.append('file', file)
             // fileType is auto-detected on server
-        } else {
+        } else if (mode === 'url') {
             if (!externalUrl) {
                 setStatus({ type: 'error', message: 'URLを入力してください' })
                 setIsUploading(false)
@@ -60,6 +61,13 @@ export default function UploadZone() {
             }
             formData.append('externalUrl', externalUrl)
             formData.append('fileType', 'url')
+        } else if (mode === 'text') {
+            if (!content) {
+                setStatus({ type: 'error', message: 'コンテンツを入力してください' })
+                setIsUploading(false)
+                return
+            }
+            formData.append('fileType', textType) // markdown, html, or text
         }
 
         try {
@@ -96,6 +104,13 @@ export default function UploadZone() {
                     className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${mode === 'url' ? 'bg-[#c7a87e] text-[#1a110d]' : 'text-[#8a725b] hover:text-[#c7a87e]'}`}
                 >
                     <LinkIcon size={18} /> External Link
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setMode('text')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${mode === 'text' ? 'bg-[#c7a87e] text-[#1a110d]' : 'text-[#8a725b] hover:text-[#c7a87e]'}`}
+                >
+                    <FileText size={18} /> Text / Markdown
                 </button>
             </div>
 
@@ -139,7 +154,7 @@ export default function UploadZone() {
                     </div>
                 </div>
 
-                {/* Dropzone or URL Input */}
+                {/* Dropzone or URL Input or Text Options */}
                 {mode === 'file' ? (
                     <div
                         {...getRootProps()}
@@ -160,7 +175,7 @@ export default function UploadZone() {
                             </div>
                         )}
                     </div>
-                ) : (
+                ) : mode === 'url' ? (
                     <div>
                         <label className="block text-xs uppercase tracking-widest text-[#8a725b] mb-1">External URL</label>
                         <input
@@ -171,14 +186,31 @@ export default function UploadZone() {
                             placeholder="https://..."
                         />
                     </div>
+                ) : (
+                    <div>
+                        <label className="block text-xs uppercase tracking-widest text-[#8a725b] mb-1">Format Type</label>
+                        <select
+                            value={textType}
+                            onChange={e => setTextType(e.target.value)}
+                            className="w-full bg-[#150f0a] border border-[#3e2b20] text-[#c7a87e] px-4 py-2 rounded focus:border-[#c7a87e] outline-none"
+                        >
+                            <option value="markdown">Markdown</option>
+                            <option value="html">HTML</option>
+                            <option value="text">Plain Text</option>
+                        </select>
+                    </div>
                 )}
 
                 <div>
-                    <label className="block text-xs uppercase tracking-widest text-[#8a725b] mb-1">Description / Notes (Optional)</label>
+                    <label className="block text-xs uppercase tracking-widest text-[#8a725b] mb-1">
+                        {mode === 'text' ? 'Content (Required)' : 'Description / Notes (Optional)'}
+                    </label>
                     <textarea
                         value={content}
                         onChange={e => setContent(e.target.value)}
-                        className="w-full bg-[#150f0a] border border-[#3e2b20] text-[#e8dac0] px-4 py-2 rounded focus:border-[#c7a87e] outline-none h-24"
+                        className={`w-full bg-[#150f0a] border border-[#3e2b20] text-[#e8dac0] px-4 py-2 rounded focus:border-[#c7a87e] outline-none ${mode === 'text' ? 'h-64 font-mono text-sm' : 'h-24'}`}
+                        placeholder={mode === 'text' ? '# Write your markdown here...' : 'Optional description...'}
+                        required={mode === 'text'}
                     />
                 </div>
             </div>
