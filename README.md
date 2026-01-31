@@ -47,9 +47,8 @@ AUTH_SECRET="secret-key-at-least-32-chars-long"
 # スキーマ反映
 npx prisma db push
 
-# 初期ユーザー作成スクリプトの実行（admin/guest）
+# 初期ユーザー作成スクリプトの実行（admin）
 npx tsx restore-admin.ts
-npx tsx create-guest.ts
 ```
 
 ### 4. 起動
@@ -59,15 +58,13 @@ npm run dev
 ブラウザで `http://localhost:3000` にアクセスしてください。
 
 *   **Admin**: `admin` / `admin123`
-*   **Guest**: `guest` / `guest123`
 
 ---
 
 ## 🛠️ 主な機能
 
-*   **マルチフォーマット対応**: PDF, Word, Excel, PowerPoint, MP4, MP3, JPEG, PNG, Markdown, HTML, URL
+*   **閲覧最適化**: PDF, Markdown, HTML, 画像, 動画, 音声など、ブラウザで直接閲覧できるフォーマットに特化（Officeファイル等はアップロード制限）
 *   **インラインプレビュー**: 
-    - 多くのフォーマットをダウンロードせずにブラウザ上で閲覧可能
     - HTML/テキストファイルは `iframe` 内で安全にレンダリング表示（Vercel Blobの強制ダウンロードを回避）
 *   **検索・整理**: 
     - リアルタイムキーワード検索（タイトル・カテゴリーの部分一致）
