@@ -75,6 +75,25 @@ export async function createDocument(formData: FormData) {
     let fileSize = 0
 
     if (file && file.size > 0) {
+        // Enforce File Type Restrictions
+        const allowedExtensions = [
+            '.pdf',
+            '.md', '.markdown', '.txt', '.html', '.htm', '.json', '.xml', '.log',
+            '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg',
+            '.mp4', '.webm', '.mov',
+            '.mp3', '.wav', '.ogg'
+        ];
+        // Normalize filename to check extension
+        const originalName = file.name.toLowerCase();
+        const ext = path.extname(originalName);
+
+        if (!allowedExtensions.includes(ext)) {
+            return {
+                success: false,
+                error: `File type not allowed: ${ext}. Only viewable formats (PDF, Media, Text) are supported.`
+            };
+        }
+
         // Use Storage Abstraction
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
         const filename = uniqueSuffix + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
@@ -82,17 +101,15 @@ export async function createDocument(formData: FormData) {
         filePath = await storage.upload(file, filename)
         fileSize = file.size
 
-        // Auto-detect fileType if generic
+        // Auto-detect fileType
         if (!fileType || fileType === 'other') {
-            const ext = path.extname(filename).toLowerCase()
             if (ext === '.pdf') fileType = 'pdf'
-            else if (['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.csv'].includes(ext)) fileType = 'office'
             else if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext)) fileType = 'image'
             else if (['.mp4', '.webm', '.mov'].includes(ext)) fileType = 'video'
             else if (['.mp3', '.wav', '.ogg'].includes(ext)) fileType = 'audio'
             else if (['.txt', '.log', '.json', '.xml', '.html', '.htm'].includes(ext)) fileType = 'text'
             else if (['.md', '.markdown'].includes(ext)) fileType = 'markdown'
-            else fileType = 'file'
+            else fileType = 'file' // Should not happen due to guard above, but safe fallback
         }
     } else if (externalUrl) {
         fileType = 'url'
