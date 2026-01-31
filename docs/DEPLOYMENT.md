@@ -42,6 +42,7 @@ Vercel (Neon) の管理画面からSQLを実行して、初期管理者ユーザ
 
 ```sql
 INSERT INTO "User" (id, username, password, role, "createdAt", "updatedAt")
+  id, username, password, role, "createdAt", "updatedAt")
 VALUES (
   'admin-init-id',
   'admin',
@@ -50,11 +51,6 @@ VALUES (
   NOW(),
   NOW()
 );
-
--- デフォルトカテゴリの作成（必須）
-INSERT INTO "Category" (id, name, "createdAt", "updatedAt")
-VALUES ('default-cat-id', 'Default', NOW(), NOW())
-ON CONFLICT (name) DO NOTHING;
 ```
 
 4.  実行後、アプリ（`https://your-project.vercel.app`）にアクセスし、`admin` / `admin123` でログインできることを確認してください。
