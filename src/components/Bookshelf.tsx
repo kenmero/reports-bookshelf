@@ -196,11 +196,14 @@ export default function Bookshelf({ documents, user }: Props) {
                                                 </div>
 
                                                 {/* Title Area - Vertical Writing */}
-                                                <div className="flex-1 flex items-center justify-center w-full py-3 text-[#dacabba0] font-bold tracking-wider leading-tight z-10 select-none overflow-hidden"
+                                                {/* Title Area - Vertical Writing */}
+                                                <div className="flex-1 flex items-center justify-center w-full py-3 text-[#dacabba0] font-bold z-10 select-none overflow-hidden"
                                                     style={{
                                                         writingMode: 'vertical-rl',
                                                         textOrientation: 'mixed',
                                                         fontSize: `${fontSizeMobile}px`,
+                                                        letterSpacing: '0.15em', // Added explicit spacing to prevent crowding
+                                                        lineHeight: '1.5', // consistent line height
                                                     } as React.CSSProperties}
                                                 >
                                                     {/* Desktop override via classes is hard with dynamic exact px, so we just use the calculated mobile size which scales well enough, or we adding a media query check in JS (not recommended for SSR). 
