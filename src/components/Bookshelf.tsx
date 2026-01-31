@@ -53,8 +53,8 @@ export default function Bookshelf({ documents, user }: Props) {
         const colorIndex = charCode % SPINE_COLORS.length;
         return {
             color: SPINE_COLORS[colorIndex],
-            height: 'h-56', // Reasonable book height
-            width: ['w-14', 'w-16', 'w-15'][charCode % 3] // Proportional width
+            height: 'h-44 md:h-56', // Responsive height
+            width: ['w-12 md:w-14', 'w-14 md:w-16', 'w-13 md:w-15'][charCode % 3] // Proportional width
         };
     }
 
@@ -73,7 +73,7 @@ export default function Bookshelf({ documents, user }: Props) {
     }
 
     return (
-        <div className="min-h-screen bg-[#150f0a] text-[#e8dac0] p-8 relative overflow-x-hidden font-serif">
+        <div className="min-h-screen bg-[#150f0a] text-[#e8dac0] p-4 md:p-8 relative overflow-x-hidden font-serif">
             {/* Background Texture */}
             <div className="fixed inset-0 opacity-30 pointer-events-none" style={{
                 backgroundImage: `url("https://www.transparenttextures.com/patterns/dark-wood.png")`,
@@ -99,10 +99,10 @@ export default function Bookshelf({ documents, user }: Props) {
                 </div>
             )}
 
-            <header className="relative z-10 mb-16 flex justify-between items-center bg-[#241710] p-6 rounded-md shadow-2xl border border-[#3e2b20]">
-                <h1 className="text-4xl text-[#c7a87e] font-bold tracking-widest uppercase flex flex-col">
+            <header className="relative z-10 mb-10 md:mb-16 flex flex-col md:flex-row justify-between items-center bg-[#241710] p-6 rounded-md shadow-2xl border border-[#3e2b20] gap-6 md:gap-0">
+                <h1 className="text-2xl md:text-4xl text-[#c7a87e] font-bold tracking-widest uppercase flex flex-col items-center md:items-start text-center md:text-left">
                     <span>Bibliotheca</span>
-                    <span className="text-xs text-[#8a725b] tracking-[0.5em] mt-1 font-sans">Reports Archive</span>
+                    <span className="text-[10px] md:text-xs text-[#8a725b] tracking-[0.5em] mt-1 font-sans">Reports Archive</span>
                 </h1>
                 {user ? (
                     user.role === 'VIEWER' ? (
@@ -125,12 +125,12 @@ export default function Bookshelf({ documents, user }: Props) {
                 )}
             </header>
 
-            <div className="relative z-10 space-y-20 max-w-7xl mx-auto">
+            <div className="relative z-10 space-y-12 md:space-y-20 max-w-7xl mx-auto">
                 {Object.entries(grouped).map(([category, docs]) => (
                     <div key={category} className="relative">
                         {/* Brass Plate Label */}
-                        <div className="absolute -top-7 left-8 bg-gradient-to-b from-[#b88a44] to-[#7a5923] text-black px-5 py-1 rounded-sm shadow-lg border border-[#ffd700]/30 z-20">
-                            <span className="text-xs font-bold tracking-widest uppercase text-[#2a1b0e] shadow-sm">{category}</span>
+                        <div className="absolute -top-6 md:-top-7 left-4 md:left-8 bg-gradient-to-b from-[#b88a44] to-[#7a5923] text-black px-4 md:px-5 py-1 rounded-sm shadow-lg border border-[#ffd700]/30 z-20">
+                            <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase text-[#2a1b0e] shadow-sm">{category}</span>
                             {/* Screws */}
                             <div className="absolute top-1.5 left-1.5 w-1 h-1 bg-[#4d3612] rounded-full opacity-60"></div>
                             <div className="absolute top-1.5 right-1.5 w-1 h-1 bg-[#4d3612] rounded-full opacity-60"></div>
@@ -139,7 +139,7 @@ export default function Bookshelf({ documents, user }: Props) {
                         {/* The Shelf */}
                         <div className="relative pt-7">
                             {/* Books Container */}
-                            <div className="flex items-end gap-1 px-8 pb-0 pt-8 overflow-x-auto min-h-[280px] scrollbar-hide">
+                            <div className="flex items-end gap-1 px-4 md:px-8 pb-0 pt-8 overflow-x-auto min-h-[240px] md:min-h-[280px] scrollbar-hide">
                                 {docs.map(doc => {
                                     const style = getBookStyle(doc.id);
                                     const fontSize = Math.max(11, Math.min(18, 240 / doc.title.length));
