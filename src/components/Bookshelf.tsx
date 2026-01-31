@@ -59,7 +59,29 @@ export default function Bookshelf({ documents, user }: Props) {
             }, {} as Record<string, Document[]>)
     }, [documents, searchQuery])
 
-    // ... (existing helpers)
+    const getBookStyle = (id: string) => {
+        const charCode = id.charCodeAt(id.length - 1);
+        const colorIndex = charCode % SPINE_COLORS.length;
+        return {
+            color: SPINE_COLORS[colorIndex],
+            height: 'h-44 md:h-56', // Responsive height
+            width: ['w-12 md:w-14', 'w-14 md:w-16', 'w-13 md:w-15'][charCode % 3] // Proportional width
+        };
+    }
+
+    const handleMouseEnter = (e: React.MouseEvent, title: string) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setTooltip({
+            title,
+            x: rect.left + rect.width / 2,
+            y: rect.top - 10,
+            visible: true
+        });
+    }
+
+    const handleMouseLeave = () => {
+        setTooltip(prev => ({ ...prev, visible: false }));
+    }
 
     return (
         <div className="min-h-screen bg-[#150f0a] text-[#e8dac0] p-4 md:p-8 relative overflow-x-hidden font-serif">
