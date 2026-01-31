@@ -19,6 +19,21 @@ interface DocumentRendererProps {
 }
 
 export default function DocumentRenderer({ doc }: DocumentRendererProps) {
+    // 6. Text/Code/HTML Viewer (Fetch & Render)
+    const [fetchedContent, setFetchedContent] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if ((doc.fileType === 'text' || doc.fileType === 'html') && doc.filePath) {
+            setLoading(true);
+            fetch(doc.filePath)
+                .then(res => res.text())
+                .then(text => setFetchedContent(text))
+                .catch(err => console.error("Failed to load content", err))
+                .finally(() => setLoading(false));
+        }
+    }, [doc.filePath, doc.fileType]);
+
     // 1. External URL
     if (doc.fileType === 'url' && doc.externalUrl) {
         return (
@@ -55,6 +70,7 @@ export default function DocumentRenderer({ doc }: DocumentRendererProps) {
     if (doc.fileType === 'image' && doc.filePath) {
         return (
             <div className="flex flex-col items-center justify-center p-8 bg-black/20 rounded-lg border border-white/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={doc.filePath}
                     alt={doc.title}
@@ -94,21 +110,7 @@ export default function DocumentRenderer({ doc }: DocumentRendererProps) {
         )
     }
 
-    // 6. Text/Code Viewer (iframe)
-    // 6. Text/Code/HTML Viewer (Fetch & Render)
-    const [fetchedContent, setFetchedContent] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        if ((doc.fileType === 'text' || doc.fileType === 'html') && doc.filePath) {
-            setLoading(true);
-            fetch(doc.filePath)
-                .then(res => res.text())
-                .then(text => setFetchedContent(text))
-                .catch(err => console.error("Failed to load content", err))
-                .finally(() => setLoading(false));
-        }
-    }, [doc.filePath, doc.fileType]);
+    // 6. Text/Code/HTML Viewer (Rendering)
 
     if ((doc.fileType === 'text' || doc.fileType === 'html') && doc.filePath) {
         if (loading) {
