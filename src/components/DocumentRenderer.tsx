@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
@@ -94,13 +95,38 @@ export default function DocumentRenderer({ doc }: DocumentRendererProps) {
     }
 
     // 6. Text/Code Viewer (iframe)
-    if (doc.fileType === 'text' && doc.filePath) {
+    // 6. Text/Code/HTML Viewer (Fetch & Render)
+    const [fetchedContent, setFetchedContent] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if ((doc.fileType === 'text' || doc.fileType === 'html') && doc.filePath) {
+            setLoading(true);
+            fetch(doc.filePath)
+                .then(res => res.text())
+                .then(text => setFetchedContent(text))
+                .catch(err => console.error("Failed to load content", err))
+                .finally(() => setLoading(false));
+        }
+    }, [doc.filePath, doc.fileType]);
+
+    if ((doc.fileType === 'text' || doc.fileType === 'html') && doc.filePath) {
+        if (loading) {
+            return <div className="text-white text-center p-10">Loading content...</div>;
+        }
+
+        // If it's HTML, render as is. If it's plain text, wrap in pre/code or basic HTML.
+        // Since we want to display HTML properly, we inject it directly.
+        // For plain text, we might want to wrap it, but for now treating 'text' (which includes .html from our previous fix) as raw HTML is what we want for the user's issue.
+        // If it is actual plain text, it will just render as text.
+
         return (
             <div className="w-full h-[800px] border border-[#3e2b20] rounded-lg overflow-hidden bg-white text-black">
                 <iframe
-                    src={doc.filePath}
+                    srcDoc={fetchedContent || ''}
                     className="w-full h-full"
                     title={doc.title}
+                    sandbox="allow-same-origin allow-scripts" // Allow scripts if needed for the HTML report
                 />
             </div>
         )
