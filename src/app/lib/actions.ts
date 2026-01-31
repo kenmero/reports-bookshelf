@@ -123,6 +123,14 @@ export async function createDocument(formData: FormData) {
     return { success: true }
 }
 
+export async function getCategories() {
+    const categories = await prisma.category.findMany({
+        select: { name: true },
+        orderBy: { name: 'asc' }
+    })
+    return categories.map(c => c.name)
+}
+
 export async function getDocuments() {
     const session = await auth()
     // If not logged in, return nothing (Middleware blocks this anyway mainly)

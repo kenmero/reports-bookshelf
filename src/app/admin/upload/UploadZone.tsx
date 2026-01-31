@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { createDocument } from '@/app/lib/actions'
+import { createDocument, getCategories } from '@/app/lib/actions'
 import { Upload, Link as LinkIcon, FileText, CheckCircle, AlertCircle } from 'lucide-react'
 
 import { useRouter } from 'next/navigation'
@@ -13,7 +13,13 @@ export default function UploadZone() {
     const [mode, setMode] = useState<'file' | 'url' | 'text'>('file')
     const [file, setFile] = useState<File | null>(null)
     const [title, setTitle] = useState('')
-    const [category, setCategory] = useState('')
+
+    // Category Logic
+    const [categories, setCategories] = useState<string[]>([])
+    const [selectedCategory, setSelectedCategory] = useState('')
+    const [newCategoryInput, setNewCategoryInput] = useState('')
+    const [isNewCategory, setIsNewCategory] = useState(false)
+
     const [externalUrl, setExternalUrl] = useState('')
     const [requiredRole, setRequiredRole] = useState('VIEWER')
     const [content, setContent] = useState('') // Description/Markdown
@@ -21,6 +27,15 @@ export default function UploadZone() {
 
     const [status, setStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: '' })
     const [isUploading, setIsUploading] = useState(false)
+
+    // Fetch categories on mount
+    useEffect(() => {
+        getCategories().then(cats => {
+            setCategories(cats)
+            if (cats.length > 0) setSelectedCategory(cats[0])
+            else setIsNewCategory(true)
+        })
+    }, [])
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
@@ -39,9 +54,17 @@ export default function UploadZone() {
         setIsUploading(true)
         setStatus({ type: null, message: '' })
 
+        const finalCategory = isNewCategory ? newCategoryInput : selectedCategory
+
+        if (!finalCategory.trim()) {
+            setStatus({ type: 'error', message: 'カテゴリーを入力してください' })
+            setIsUploading(false)
+            return
+        }
+
         const formData = new FormData()
         formData.append('title', title)
-        formData.append('category', category)
+        formData.append('category', finalCategory)
         formData.append('requiredRole', requiredRole)
         formData.append('content', content)
 
@@ -131,14 +154,43 @@ export default function UploadZone() {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-xs uppercase tracking-widest text-[#8a725b] mb-1">Category</label>
-                        <input
-                            type="text"
-                            value={category}
-                            onChange={e => setCategory(e.target.value)}
-                            className="w-full bg-[#150f0a] border border-[#3e2b20] text-[#e8dac0] px-4 py-2 rounded focus:border-[#c7a87e] outline-none"
-                            placeholder="e.g. Finance, Tech"
-                            required
-                        />
+                        {!isNewCategory && categories.length > 0 ? (
+                            <div className="flex gap-2">
+                                <select
+                                    value={selectedCategory}
+                                    onChange={e => {
+                                        if (e.target.value === '__NEW__') setIsNewCategory(true)
+                                        else setSelectedCategory(e.target.value)
+                                    }}
+                                    className="w-full bg-[#150f0a] border border-[#3e2b20] text-[#e8dac0] px-4 py-2 rounded focus:border-[#c7a87e] outline-none"
+                                >
+                                    {categories.map(cat => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                    <option value="__NEW__" className="text-[#c7a87e] font-bold">+ Create New...</option>
+                                </select>
+                            </div>
+                        ) : (
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={newCategoryInput}
+                                    onChange={e => setNewCategoryInput(e.target.value)}
+                                    className="w-full bg-[#150f0a] border border-[#3e2b20] text-[#e8dac0] px-4 py-2 rounded focus:border-[#c7a87e] outline-none animate-pulse-border"
+                                    placeholder="Enter new category name..."
+                                    autoFocus
+                                />
+                                {categories.length > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsNewCategory(false)}
+                                        className="px-3 py-1 text-xs text-[#8a725b] hover:text-[#c7a87e] border border-[#3e2b20] rounded"
+                                    >
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <div>
                         <label className="block text-xs uppercase tracking-widest text-[#8a725b] mb-1">Access Level</label>
