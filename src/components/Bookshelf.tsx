@@ -160,7 +160,13 @@ export default function Bookshelf({ documents, user }: Props) {
                             <div className="flex items-end gap-1 px-4 md:px-8 pb-0 pt-8 overflow-x-auto min-h-[240px] md:min-h-[280px] scrollbar-hide">
                                 {docs.map(doc => {
                                     const style = getBookStyle(doc.id);
-                                    const fontSize = Math.max(11, Math.min(18, 240 / doc.title.length));
+                                    // Dynamic font size calculation
+                                    // Mobile height is approx 176px (h-44), Desktop is 224px (h-56)
+                                    // We calculate based on length to fit vertical text
+                                    const length = doc.title.length;
+                                    // More aggressive scaling: start smaller, shrink faster
+                                    const fontSizeMobile = Math.max(10, Math.min(16, 160 / length));
+                                    const fontSizeDesktop = Math.max(12, Math.min(18, 200 / length));
 
                                     return (
                                         <Link
@@ -194,9 +200,16 @@ export default function Bookshelf({ documents, user }: Props) {
                                                     style={{
                                                         writingMode: 'vertical-rl',
                                                         textOrientation: 'mixed',
-                                                        fontSize: `${fontSize}px`
-                                                    }}>
-                                                    <span className="drop-shadow-md opacity-90">
+                                                        fontSize: `${fontSizeMobile}px`,
+                                                    } as React.CSSProperties}
+                                                >
+                                                    {/* Desktop override via classes is hard with dynamic exact px, so we just use the calculated mobile size which scales well enough, or we adding a media query check in JS (not recommended for SSR). 
+                                                        Let's just trust the safer/smaller scaling for now, or use clamp. 
+                                                        Actually, let's use the 'md:' class to override if we can, but we can't injecting dynamic value easily without style var.
+                                                    */}
+                                                    <span className="drop-shadow-md opacity-90 md:text-[length:var(--desktop-size)]"
+                                                        style={{ '--desktop-size': `${fontSizeDesktop}px` } as React.CSSProperties}
+                                                    >
                                                         {doc.title}
                                                     </span>
                                                 </div>
