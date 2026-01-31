@@ -24,7 +24,7 @@ export default function DocumentRenderer({ doc }: DocumentRendererProps) {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if ((doc.fileType === 'text' || doc.fileType === 'html') && doc.filePath) {
+        if ((doc.fileType === 'text' || doc.fileType === 'html' || doc.fileType === 'markdown') && doc.filePath) {
             setLoading(true);
             fetch(doc.filePath)
                 .then(res => res.text())
@@ -33,6 +33,19 @@ export default function DocumentRenderer({ doc }: DocumentRendererProps) {
                 .finally(() => setLoading(false));
         }
     }, [doc.filePath, doc.fileType]);
+
+    if (doc.fileType === 'markdown' && doc.filePath) {
+        if (loading) {
+            return <div className="text-white text-center p-10">Loading content...</div>;
+        }
+        return (
+            <article className="prose prose-invert max-w-none prose-headings:text-[#c7a87e] prose-a:text-[#c7a87e] prose-strong:text-white p-8 bg-black/20 rounded border border-white/5">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    {fetchedContent || ''}
+                </ReactMarkdown>
+            </article>
+        )
+    }
 
     // 1. External URL
     if (doc.fileType === 'url' && doc.externalUrl) {
