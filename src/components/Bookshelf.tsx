@@ -33,59 +33,38 @@ const SPINE_COLORS = [
     'bg-[#3d3832] border-[#2b2723]', // Grey-ish
 ]
 
+import { Search } from 'lucide-react'
+
+// ... (existing interfaces)
+
 export default function Bookshelf({ documents, user }: Props) {
     const [tooltip, setTooltip] = useState<{ title: string, x: number, y: number, visible: boolean }>({
         title: '', x: 0, y: 0, visible: false
     });
+    const [searchQuery, setSearchQuery] = useState('')
 
-    // Group by Category
+    // Group by Category with Search Filter
     const grouped = useMemo(() => {
-        return documents.reduce((acc, doc) => {
-            const cat = doc.category.name
-            if (!acc[cat]) acc[cat] = []
-            acc[cat].push(doc)
-            return acc
-        }, {} as Record<string, Document[]>)
-    }, [documents])
+        return documents
+            .filter(doc => {
+                const query = searchQuery.toLowerCase();
+                return doc.title.toLowerCase().includes(query) ||
+                    doc.category.name.toLowerCase().includes(query);
+            })
+            .reduce((acc, doc) => {
+                const cat = doc.category.name
+                if (!acc[cat]) acc[cat] = []
+                acc[cat].push(doc)
+                return acc
+            }, {} as Record<string, Document[]>)
+    }, [documents, searchQuery])
 
-    const getBookStyle = (id: string) => {
-        const charCode = id.charCodeAt(id.length - 1);
-        const colorIndex = charCode % SPINE_COLORS.length;
-        return {
-            color: SPINE_COLORS[colorIndex],
-            height: 'h-44 md:h-56', // Responsive height
-            width: ['w-12 md:w-14', 'w-14 md:w-16', 'w-13 md:w-15'][charCode % 3] // Proportional width
-        };
-    }
-
-    const handleMouseEnter = (e: React.MouseEvent, title: string) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        setTooltip({
-            title,
-            x: rect.left + rect.width / 2,
-            y: rect.top - 10,
-            visible: true
-        });
-    }
-
-    const handleMouseLeave = () => {
-        setTooltip(prev => ({ ...prev, visible: false }));
-    }
+    // ... (existing helpers)
 
     return (
         <div className="min-h-screen bg-[#150f0a] text-[#e8dac0] p-4 md:p-8 relative overflow-x-hidden font-serif">
-            {/* Background Texture */}
-            <div className="fixed inset-0 opacity-30 pointer-events-none" style={{
-                backgroundImage: `url("https://www.transparenttextures.com/patterns/dark-wood.png")`,
-                backgroundSize: '300px'
-            }}></div>
+            {/* ... (existing backgrounds and tooltip) */}
 
-            {/* Vertical wood paneling lines */}
-            <div className="fixed inset-0 opacity-10 pointer-events-none" style={{
-                backgroundImage: 'repeating-linear-gradient(90deg, transparent 0, transparent 100px, #000 100px, #000 102px)'
-            }}></div>
-
-            {/* Fixed Tooltip Portal */}
             {tooltip.visible && (
                 <div
                     className="fixed z-[9999] pointer-events-none bg-[#0a0a0a] border border-[#333] px-3 py-1.5 rounded shadow-2xl transition-opacity duration-200"
@@ -100,26 +79,43 @@ export default function Bookshelf({ documents, user }: Props) {
             )}
 
             <header className="relative z-10 mb-10 md:mb-16 flex flex-col md:flex-row justify-between items-center bg-[#241710] p-6 rounded-md shadow-2xl border border-[#3e2b20] gap-6 md:gap-0">
-                <h1 className="text-2xl md:text-4xl text-[#c7a87e] font-bold tracking-widest uppercase flex flex-col items-center md:items-start text-center md:text-left">
-                    <span>Bibliotheca</span>
-                    <span className="text-[10px] md:text-xs text-[#8a725b] tracking-[0.5em] mt-1 font-sans">Reports Archive</span>
-                </h1>
+                <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
+                    <h1 className="text-2xl md:text-4xl text-[#c7a87e] font-bold tracking-widest uppercase flex flex-col items-center md:items-start text-center md:text-left shrink-0">
+                        <span>Bibliotheca</span>
+                        <span className="text-[10px] md:text-xs text-[#8a725b] tracking-[0.5em] mt-1 font-sans">Reports Archive</span>
+                    </h1>
+
+                    {/* Search Bar */}
+                    <div className="relative w-full md:w-64 group">
+                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#8a725b] group-focus-within:text-[#c7a87e] transition-colors">
+                            <Search size={16} />
+                        </div>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search archives..."
+                            className="w-full bg-[#1a110d] border border-[#5c4030] text-[#e8dac0] pl-10 pr-4 py-2 rounded text-sm placeholder-[#5c4030] focus:border-[#c7a87e] focus:bg-[#2a1b0e] outline-none transition-all"
+                        />
+                    </div>
+                </div>
+
                 {user ? (
                     user.role === 'VIEWER' ? (
                         <button
                             onClick={() => logout()}
-                            className="px-5 py-2 bg-[#2a1b0e] border border-[#c7a87e] text-[#e8dac0] hover:bg-[#3e2b20] transition-all text-sm tracking-wider uppercase shadow-md flex items-center gap-2"
+                            className="px-5 py-2 bg-[#2a1b0e] border border-[#c7a87e] text-[#e8dac0] hover:bg-[#3e2b20] transition-all text-sm tracking-wider uppercase shadow-md flex items-center gap-2 shrink-0"
                         >
                             Sign Out
                         </button>
                     ) : (
-                        <Link href="/admin/upload" className="px-5 py-2 bg-[#2a1b0e] border border-[#c7a87e] text-[#e8dac0] hover:bg-[#3e2b20] transition-all text-sm tracking-wider uppercase shadow-md flex items-center gap-2">
+                        <Link href="/admin/upload" className="px-5 py-2 bg-[#2a1b0e] border border-[#c7a87e] text-[#e8dac0] hover:bg-[#3e2b20] transition-all text-sm tracking-wider uppercase shadow-md flex items-center gap-2 shrink-0">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                             Admin Panel
                         </Link>
                     )
                 ) : (
-                    <Link href="/login" className="px-5 py-2 bg-[#1a110d] border border-[#5c4030] text-[#a68a6d] hover:text-[#e8dac0] hover:border-[#c7a87e] transition-all text-sm tracking-wider uppercase">
+                    <Link href="/login" className="px-5 py-2 bg-[#1a110d] border border-[#5c4030] text-[#a68a6d] hover:text-[#e8dac0] hover:border-[#c7a87e] transition-all text-sm tracking-wider uppercase shrink-0">
                         Staff Entrance
                     </Link>
                 )}
